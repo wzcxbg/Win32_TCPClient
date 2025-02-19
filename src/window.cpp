@@ -31,12 +31,20 @@ bool Window::Create() {
     }
 
     // Create the window
+    // Get screen dimensions
+    int screenWidth = GetSystemMetrics(SM_CXSCREEN);
+    int screenHeight = GetSystemMetrics(SM_CYSCREEN);
+    
+    // Calculate window position
+    int xPos = (screenWidth - WINDOW_WIDTH) / 2;
+    int yPos = (screenHeight - WINDOW_HEIGHT) / 2;
+    
     hwnd = CreateWindowEx(
         0,                              // Optional window styles
         WINDOW_CLASS_NAME,               // Window class
         L"TCP Client",                  // Window text
         WS_OVERLAPPEDWINDOW,            // Window style
-        CW_USEDEFAULT, CW_USEDEFAULT,   // Position
+        xPos, yPos,                     // Position
         WINDOW_WIDTH, WINDOW_HEIGHT,     // Size
         NULL,                           // Parent window
         NULL,                           // Menu
