@@ -165,6 +165,36 @@ LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
                 }
                 return 0;
             }
+            case WM_SIZE: {
+                int clientWidth = LOWORD(lParam);
+                int clientHeight = HIWORD(lParam);
+
+                // Reposition and resize controls
+                const int MARGIN = 10;
+                const int CONTROL_HEIGHT = 25;
+                const int BUTTON_WIDTH = 80;
+
+                // Calculate widths with proportional scaling
+                const float PORT_EDIT_WIDTH_RATIO = 0.2f; // Port edit takes 20% of available width
+                int availableWidth = clientWidth - MARGIN * 4 - BUTTON_WIDTH;
+                int portEditWidth = static_cast<int>(availableWidth * PORT_EDIT_WIDTH_RATIO);
+                int ipEditWidth = availableWidth - portEditWidth;
+
+                // IP edit and port edit controls
+                MoveWindow(pThis->hwndIpEdit, MARGIN, MARGIN, ipEditWidth, CONTROL_HEIGHT, TRUE);
+                MoveWindow(pThis->hwndPortEdit, MARGIN * 2 + ipEditWidth, MARGIN, portEditWidth, CONTROL_HEIGHT, TRUE);
+                MoveWindow(pThis->hwndConnectBtn, clientWidth - MARGIN - BUTTON_WIDTH, MARGIN, BUTTON_WIDTH, CONTROL_HEIGHT, TRUE);
+
+                // Message edit and send button
+                int messageEditWidth = clientWidth - MARGIN * 3 - BUTTON_WIDTH;
+                MoveWindow(pThis->hwndMessageEdit, MARGIN, MARGIN * 2 + CONTROL_HEIGHT, messageEditWidth, CONTROL_HEIGHT, TRUE);
+                MoveWindow(pThis->hwndSendBtn, clientWidth - MARGIN - BUTTON_WIDTH, MARGIN * 2 + CONTROL_HEIGHT, BUTTON_WIDTH, CONTROL_HEIGHT, TRUE);
+
+                // Log edit control
+                int logEditHeight = clientHeight - (MARGIN * 4 + CONTROL_HEIGHT * 2);
+                MoveWindow(pThis->hwndLogEdit, MARGIN, MARGIN * 3 + CONTROL_HEIGHT * 2, clientWidth - MARGIN * 2, logEditHeight, TRUE);
+                return 0;
+            }
         }
     }
 
