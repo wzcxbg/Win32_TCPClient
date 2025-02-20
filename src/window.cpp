@@ -7,6 +7,7 @@
 #include <ws2tcpip.h>
 #include <windows.h>
 #include <windowsx.h>
+#include <richedit.h>
 #include "window.h"
 #include "resource.h"
 #include "tcp_client.h"
@@ -109,7 +110,7 @@ void Window::CreateControls() {
 
     // Create message log window
     hwndLogEdit = CreateWindowEx(
-        WS_EX_CLIENTEDGE, L"EDIT", L"",
+        WS_EX_CLIENTEDGE, L"RICHEDIT50W", L"",
         WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
         10, 80, 570, 270,
         hwnd, (HMENU)IDC_LOG_EDIT, GetModuleHandle(NULL), NULL
@@ -160,6 +161,14 @@ LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
                     // Append message to log
                     int len = GetWindowTextLength(pThis->hwndLogEdit);
                     SendMessage(pThis->hwndLogEdit, EM_SETSEL, len, len);
+                    
+                    // Set red color for received messages
+                    CHARFORMAT2 cf = {};
+                    cf.cbSize = sizeof(CHARFORMAT2);
+                    cf.dwMask = CFM_COLOR;
+                    cf.crTextColor = RGB(255, 0, 0); // Red
+                    SendMessage(pThis->hwndLogEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf);
+                    
                     SendMessage(pThis->hwndLogEdit, EM_REPLACESEL, FALSE, (LPARAM)logBuffer);
                     delete pMessage;
                 }
@@ -202,6 +211,9 @@ LRESULT CALLBACK Window::WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 }
 
 void Window::HandleCreate() {
+    // Load Rich Edit library
+    LoadLibrary(L"Msftedit.dll");
+
     // Controls are already created in Create()
 
     // Set up message callback
@@ -239,17 +251,61 @@ void Window::HandleCommand(WPARAM wParam, LPARAM lParam) {
                 if (tcpClient.Connect(ipStr, port)) {
                     isConnected = true;
                     SetWindowText(hwndConnectBtn, L"Disconnect");
-                    SetWindowText(hwndLogEdit, L"Connected to server\r\n");
+                    
+                    // Clear existing text
+                    SetWindowText(hwndLogEdit, L"");
+                    
+                    // Set cursor to end and set blue color for connection status
+                    int len = GetWindowTextLength(hwndLogEdit);
+                    SendMessage(hwndLogEdit, EM_SETSEL, len, len);
+                    
+                    CHARFORMAT2 cf = {};
+                    cf.cbSize = sizeof(CHARFORMAT2);
+                    cf.dwMask = CFM_COLOR;
+                    cf.crTextColor = RGB(0, 0, 255); // Blue
+                    SendMessage(hwndLogEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf);
+                    
+                    // Add connection status message
+                    SendMessage(hwndLogEdit, EM_REPLACESEL, FALSE, (LPARAM)L"Connected to server\r\n");
                     EnableWindow(hwndSendBtn, TRUE);
                 } else {
-                    SetWindowText(hwndLogEdit, L"Failed to connect to server\r\n");
+                    // Clear existing text
+                    SetWindowText(hwndLogEdit, L"");
+                    
+                    // Set cursor to end and set blue color for connection status
+                    int len = GetWindowTextLength(hwndLogEdit);
+                    SendMessage(hwndLogEdit, EM_SETSEL, len, len);
+                    
+                    CHARFORMAT2 cf = {};
+                    cf.cbSize = sizeof(CHARFORMAT2);
+                    cf.dwMask = CFM_COLOR;
+                    cf.crTextColor = RGB(0, 0, 255); // Blue
+                    SendMessage(hwndLogEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf);
+                    
+                    // Add connection status message
+                    SendMessage(hwndLogEdit, EM_REPLACESEL, FALSE, (LPARAM)L"Failed to connect to server\r\n");
                 }
             } else {
                 // Disconnect
                 if (tcpClient.Disconnect()) {
                     isConnected = false;
                     SetWindowText(hwndConnectBtn, L"Connect");
-                    SetWindowText(hwndLogEdit, L"Disconnected from server\r\n");
+                    
+                    // Clear existing text
+                    SetWindowText(hwndLogEdit, L"");
+                    
+                    // Set cursor to end and set blue color for connection status
+                    int len = GetWindowTextLength(hwndLogEdit);
+                    SendMessage(hwndLogEdit, EM_SETSEL, len, len);
+                    
+                    CHARFORMAT2 cf = {};
+                    cf.cbSize = sizeof(CHARFORMAT2);
+                    cf.dwMask = CFM_COLOR;
+                    cf.crTextColor = RGB(0, 0, 255); // Blue
+                    SendMessage(hwndLogEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf);
+                    
+                    // Add connection status message
+                    SendMessage(hwndLogEdit, EM_REPLACESEL, FALSE, (LPARAM)L"Disconnected from server\r\n");
                     EnableWindow(hwndSendBtn, FALSE);
                 }
             }
@@ -270,11 +326,18 @@ void Window::HandleCommand(WPARAM wParam, LPARAM lParam) {
                     // Clear message edit control
                     SetWindowText(hwndMessageEdit, L"");
 
-                    // Update log with sent message
+                    // Update log with sent message in green color
                     wchar_t logBuffer[1024];
                     swprintf(logBuffer, 1024, L"Sent: %s\r\n", messageBuffer);
                     int len = GetWindowTextLength(hwndLogEdit);
                     SendMessage(hwndLogEdit, EM_SETSEL, len, len);
+                    
+                    CHARFORMAT2 cf = {};
+                    cf.cbSize = sizeof(CHARFORMAT2);
+                    cf.dwMask = CFM_COLOR;
+                    cf.crTextColor = RGB(0, 255, 0); // Green
+                    SendMessage(hwndLogEdit, EM_SETCHARFORMAT, SCF_SELECTION, (LPARAM)&cf);
+                    
                     SendMessage(hwndLogEdit, EM_REPLACESEL, FALSE, (LPARAM)logBuffer);
                 } else {
                     MessageBox(hwnd, L"Failed to send message", L"Error", MB_ICONERROR);
