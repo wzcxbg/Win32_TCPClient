@@ -9,3 +9,12 @@ Write-Host "Building project..."
 cmake --build build --config Release
 
 Write-Host "Build completed."
+
+# Launch the executable
+$exePath = "build\Release\Win32TCPClient.exe"
+if (Test-Path $exePath) {
+    Write-Host "Launching application..."
+    Start-Process $exePath
+} else {
+    Write-Host "Error: Could not find the executable at $exePath"
+}
