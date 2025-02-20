@@ -71,7 +71,7 @@ void Window::CreateControls() {
     // Create IP address edit control
     hwndIpEdit = CreateWindowEx(
         WS_EX_CLIENTEDGE, L"EDIT", L"127.0.0.1",
-        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
+        WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL,
         10, 10, 350, 25,
         hwnd, (HMENU)IDC_IP_EDIT, GetModuleHandle(NULL), NULL
     );
@@ -79,7 +79,7 @@ void Window::CreateControls() {
     // Create port edit control
     hwndPortEdit = CreateWindowEx(
         WS_EX_CLIENTEDGE, L"EDIT", L"8080",
-        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL | ES_NUMBER,
+        WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL | ES_NUMBER,
         370, 10, 120, 25,
         hwnd, (HMENU)IDC_PORT_EDIT, GetModuleHandle(NULL), NULL
     );
@@ -95,7 +95,7 @@ void Window::CreateControls() {
     // Create message edit control
     hwndMessageEdit = CreateWindowEx(
         WS_EX_CLIENTEDGE, L"EDIT", L"",
-        WS_CHILD | WS_VISIBLE | WS_BORDER | ES_AUTOHSCROLL,
+        WS_CHILD | WS_VISIBLE | ES_AUTOHSCROLL,
         10, 45, 480, 25,
         hwnd, (HMENU)IDC_MESSAGE_EDIT, GetModuleHandle(NULL), NULL
     );
@@ -108,13 +108,24 @@ void Window::CreateControls() {
         hwnd, (HMENU)IDC_SEND_BTN, GetModuleHandle(NULL), NULL
     );
 
-    // Create message log window
+    // Create message log window with flat style
     hwndLogEdit = CreateWindowEx(
-        WS_EX_CLIENTEDGE, L"RICHEDIT50W", L"",
-        WS_CHILD | WS_VISIBLE | WS_BORDER | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY,
+        0, L"RICHEDIT50W", L"",
+        WS_CHILD | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY | WS_BORDER,
         10, 80, 570, 270,
         hwnd, (HMENU)IDC_LOG_EDIT, GetModuleHandle(NULL), NULL
     );
+    
+    // Set flat style background color
+    SendMessage(hwndLogEdit, EM_SETBKGNDCOLOR, 0, (LPARAM)RGB(255, 255, 255));
+    
+    // Remove 3D border effect
+    LONG_PTR style = GetWindowLongPtr(hwndLogEdit, GWL_EXSTYLE);
+    style &= ~WS_EX_CLIENTEDGE;
+    SetWindowLongPtr(hwndLogEdit, GWL_EXSTYLE, style);
+    
+    // Force redraw
+    SetWindowPos(hwndLogEdit, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
     // Set default font for all controls
     HFONT hFont = (HFONT)GetStockObject(DEFAULT_GUI_FONT);
