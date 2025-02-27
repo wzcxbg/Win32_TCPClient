@@ -11,6 +11,7 @@ set(SOURCE_FILES
     src/main.cpp
     src/window.cpp
     src/tcp_client.cpp
+    src/splash_window.cpp
 )
 
 # Add header files
@@ -18,6 +19,7 @@ set(HEADER_FILES
     include/window.h
     include/tcp_client.h
     include/resource.h
+    include/splash_window.h
 )
 
 # Create executable
